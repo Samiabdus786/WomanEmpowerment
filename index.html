@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ShaktiPath — Women Empowerment Platform</title>
+  <link rel="stylesheet" href="static/css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body>
+<!-- STUNNING BACKGROUND SLIDESHOW -->
+<div class="bg-slideshow" id="bgSlideshow"></div>
+<div class="bg-overlay"></div>
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">🌸</div>
+    <div class="logo-text">ShaktiPath <span>Women Empowerment Platform</span></div>
+  </div>
+  <button class="lang-btn" onclick="toggleLang()">🌐 English</button>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav" id="nav">
+  <button class="nav-btn active" onclick="showPage('home',this)">🏠 Home</button>
+  <button class="nav-btn" onclick="showPage('assistant',this)">🤖 AI Assistant</button>
+  <button class="nav-btn" onclick="showPage('schemes',this)">📋 Schemes</button>
+  <button class="nav-btn" onclick="showPage('skills',this)">💼 Skills &amp; Work</button>
+  <button class="nav-btn" onclick="showPage('motivation',this)">✨ Motivation</button>
+  <button class="nav-btn" onclick="showPage('profile',this)">👤 Profile</button>
+</div>
+
+<!-- ==================== HOME PAGE ==================== -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div style="font-size:42px;margin-bottom:10px;">🌸</div>
+    <h2>Namaste! Welcome to ShaktiPath</h2>
+    <p>Your personal platform for skills, income opportunities, government schemes, and daily inspiration. Empowering women, one step at a time.</p>
+    <button class="primary-btn" style="width:auto;padding:11px 30px;" onclick="showPage('assistant',document.querySelectorAll('.nav-btn')[1])">Talk to AI Assistant →</button>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-box"><div class="stat-num">42+</div><div class="stat-lbl">Govt Schemes</div></div>
+    <div class="stat-box"><div class="stat-num">1200+</div><div class="stat-lbl">Women Helped</div></div>
+    <div class="stat-box"><div class="stat-num">8</div><div class="stat-lbl">Skill Categories</div></div>
+  </div>
+
+  <div class="section-title">⚡ Quick Access</div>
+  <div class="tiles">
+    <div class="tile" onclick="showPage('schemes',document.querySelectorAll('.nav-btn')[2])">
+      <div class="tile-icon">📋</div>
+      <div class="tile-label">Govt Schemes</div>
+      <div class="tile-sub">Find schemes you qualify for</div>
+    </div>
+    <div class="tile" onclick="showPage('skills',document.querySelectorAll('.nav-btn')[3])">
+      <div class="tile-icon">💼</div>
+      <div class="tile-label">Find Work</div>
+      <div class="tile-sub">Register skills &amp; earn income</div>
+    </div>
+    <div class="tile" onclick="showPage('assistant',document.querySelectorAll('.nav-btn')[1])">
+      <div class="tile-icon">🤖</div>
+      <div class="tile-label">AI Assistant</div>
+      <div class="tile-sub">Ask anything, anytime</div>
+    </div>
+    <div class="tile" onclick="showPage('motivation',document.querySelectorAll('.nav-btn')[4])">
+      <div class="tile-icon">✨</div>
+      <div class="tile-label">Get Inspired</div>
+      <div class="tile-sub">Stories &amp; learning videos</div>
+    </div>
+  </div>
+
+  <div class="card tip-card">
+    <div class="card-title" style="color:#E65100;">📣 Today's Tip</div>
+    <p>Did you know? Under <strong>PM Vishwakarma Yojana</strong>, women artisans can get up to ₹3 lakh loan at just 5% interest. Ask our AI Assistant to check your eligibility!</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏆 Success Snapshot</div>
+    <div class="success-snap">
+      <div class="snap-item"><span class="snap-icon">🧵</span><div><strong>Savitri Devi</strong><br><small>₹45,000/month from tailoring</small></div></div>
+      <div class="snap-item"><span class="snap-icon">📚</span><div><strong>Rekha Kumari</strong><br><small>Online tutor, 40 students</small></div></div>
+      <div class="snap-item"><span class="snap-icon">🎨</span><div><strong>Lakshmi Bai</strong><br><small>Handicrafts on Amazon</small></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== AI ASSISTANT PAGE ==================== -->
+<div class="page" id="page-assistant">
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="chat-avatar">🤖</div>
+      <div class="chat-header-text">
+        <p>Shakti AI Assistant</p>
+        <span id="aiStatus">Online — Powered by Claude AI</span>
+      </div>
+      <button class="speak-toggle" onclick="toggleAutoSpeak()" id="speakBtn" title="Toggle voice responses">🔇</button>
+    </div>
+    <div class="chat-msgs" id="chatMsgs">
+      <div class="msg bot">
+        <div class="msg-avatar">🌸</div>
+        <div class="msg-bubble">Namaste! I am Shakti, your AI assistant. I can help you with:<br><br>
+          • Government welfare schemes &amp; eligibility<br>
+          • Finding local work &amp; income opportunities<br>
+          • Skill development guidance<br>
+          • Motivational support &amp; confidence building<br><br>
+          What would you like to know today? You can type or use the 🎤 voice button to speak in Hindi!</div>
+      </div>
+    </div>
+    <div class="quick-prompts">
+      <button class="qp" onclick="sendQuick('What government schemes are available for women in India?')">Govt Schemes</button>
+      <button class="qp" onclick="sendQuick('How can I earn money from home using my tailoring skills?')">Work from Home</button>
+      <button class="qp" onclick="sendQuick('Tell me an inspiring story of a rural woman entrepreneur from India')">Inspire Me</button>
+      <button class="qp" onclick="sendQuick('How to apply for PM Jan Dhan Yojana and what are the benefits?')">Jan Dhan</button>
+      <button class="qp" onclick="sendQuick('How to start a tiffin service business from home?')">Tiffin Business</button>
+      <button class="qp" onclick="sendQuick('What skill training programs are free for women?')">Free Training</button>
+    </div>
+    <div class="chat-input-area">
+      <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="Voice input (Hindi)">🎤</button>
+      <input class="chat-input" id="chatInput" placeholder="Type your question here..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+      <button class="send-btn" onclick="sendMsg()">➤</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px;">
+    <div class="card-title">💡 Suggested Topics</div>
+    <div class="topic-grid">
+      <button class="topic-btn" onclick="sendQuick('How to get Mudra loan for my small business?')">Mudra Loan</button>
+      <button class="topic-btn" onclick="sendQuick('What is Beti Bachao Beti Padhao scheme?')">Beti Bachao</button>
+      <button class="topic-btn" onclick="sendQuick('How to sell handicrafts online on Amazon or Flipkart?')">Sell Online</button>
+      <button class="topic-btn" onclick="sendQuick('Tips to improve my confidence and self-reliance')">Confidence</button>
+      <button class="topic-btn" onclick="sendQuick('How to open a bank account and use UPI?')">Digital Banking</button>
+      <button class="topic-btn" onclick="sendQuick('Best courses for women under PMKVY skill training?')">PMKVY Courses</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SCHEMES PAGE ==================== -->
+<div class="page" id="page-schemes">
+  <div class="section-title">📋 Government Welfare Schemes</div>
+
+  <div class="card" style="padding:12px;margin-bottom:14px;">
+    <input class="inp" placeholder="🔍 Search schemes by name or category..." id="schemeSearch" oninput="filterSchemes()"/>
+    <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+      <select class="inp" id="stateFilter" onchange="filterSchemes()" style="flex:1; min-width:140px;">
+        <option value="all">🌍 All States / Central</option>
+        <option value="Andhra Pradesh">Andhra Pradesh</option>
+        <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+        <option value="Assam">Assam</option>
+        <option value="Bihar">Bihar</option>
+        <option value="Chhattisgarh">Chhattisgarh</option>
+        <option value="Goa">Goa</option>
+        <option value="Gujarat">Gujarat</option>
+        <option value="Haryana">Haryana</option>
+        <option value="Himachal Pradesh">Himachal Pradesh</option>
+        <option value="Jharkhand">Jharkhand</option>
+        <option value="Karnataka">Karnataka</option>
+        <option value="Kerala">Kerala</option>
+        <option value="Madhya Pradesh">Madhya Pradesh</option>
+        <option value="Maharashtra">Maharashtra</option>
+        <option value="Manipur">Manipur</option>
+        <option value="Meghalaya">Meghalaya</option>
+        <option value="Mizoram">Mizoram</option>
+        <option value="Nagaland">Nagaland</option>
+        <option value="Odisha">Odisha</option>
+        <option value="Punjab">Punjab</option>
+        <option value="Rajasthan">Rajasthan</option>
+        <option value="Sikkim">Sikkim</option>
+        <option value="Tamil Nadu">Tamil Nadu</option>
+        <option value="Telangana">Telangana</option>
+        <option value="Tripura">Tripura</option>
+        <option value="Uttar Pradesh">Uttar Pradesh</option>
+        <option value="Uttarakhand">Uttarakhand</option>
+        <option value="West Bengal">West Bengal</option>
+        <!-- Union Territories -->
+        <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+        <option value="Chandigarh">Chandigarh</option>
+        <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli</option>
+        <option value="Delhi">Delhi</option>
+        <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+        <option value="Ladakh">Ladakh</option>
+        <option value="Lakshadweep">Lakshadweep</option>
+        <option value="Puducherry">Puducherry</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="scheme-tabs">
+    <button class="stab active" onclick="filterTab('all',this)">All</button>
+    <button class="stab" onclick="filterTab('loan',this)">Loan</button>
+    <button class="stab" onclick="filterTab('skill',this)">Skill</button>
+    <button class="stab" onclick="filterTab('health',this)">Health</button>
+    <button class="stab" onclick="filterTab('banking',this)">Banking</button>
+    <button class="stab" onclick="filterTab('artisan',this)">Artisan</button>
+  </div>
+
+  <div id="schemesList">
+    <!-- Schemes will be loaded from MongoDB dynamically -->
+  </div>
+</div>
+
+<!-- ==================== SKILLS & WORK PAGE ==================== -->
+<div class="page" id="page-skills">
+  <div class="section-title">💼 Register Your Skills</div>
+
+  <div class="card">
+    <p class="card-title">Select your skills (choose all that apply)</p>
+    <div class="skill-chips" id="skillChips">
+      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Tailoring &amp; Stitching">🧵 Tailoring</div>
+      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Cooking &amp; Food Preparation">🍳 Cooking</div>
+      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Handicrafts &amp; Embroidery">🧶 Handicrafts</div>
+      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Teaching &amp; Tuition">📚 Tuition</div>
+      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Beauty &amp; Parlour Services">💄 Beauty Services</div>
+      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Art &amp; Painting">🎨 Art &amp; Painting</div>
+      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Agriculture &amp; Farming">🌿 Agriculture</div>
+      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Computer &amp; Digital Skills">💻 Computer Skills</div>
+      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Yoga &amp; Wellness">🧘 Yoga &amp; Wellness</div>
+      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Housekeeping &amp; Cleaning">🏠 Housekeeping</div>
+      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Pickle &amp; Papad Making">🥫 Pickle / Papad</div>
+      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Babysitting &amp; Childcare">👶 Childcare</div>
+    </div>
+
+    <div class="input-row">
+      <label class="label">Your Location / Village / City *</label>
+      <input class="inp" id="locationInp" placeholder="e.g., Banswada, Nizamabad, Telangana"/>
+    </div>
+    <div class="input-row">
+      <label class="label">Years of Experience</label>
+      <select class="inp" id="expInp">
+        <option>Less than 1 year (Beginner)</option>
+        <option>1-2 years</option>
+        <option>3-5 years</option>
+        <option>5+ years (Expert)</option>
+      </select>
+    </div>
+    <div class="input-row">
+      <label class="label">Work Preference</label>
+      <select class="inp" id="prefInp">
+        <option>Home-based only</option>
+        <option>Local market / nearby</option>
+        <option>Online / remote</option>
+        <option>Any / flexible</option>
+      </select>
+    </div>
+    <button class="primary-btn" onclick="findOpportunities()">🔍 Find Opportunities Near Me</button>
+  </div>
+
+  <div id="opportunitiesSection" style="display:none;">
+    <div class="section-title">🎯 AI-Recommended Opportunities</div>
+    <div id="oppList"></div>
+    <div class="card" style="background:linear-gradient(135deg,#E8F5E9,#E3F2FD);margin-top:4px;">
+      <div class="card-title" style="color:#1B5E20;">📞 Connect &amp; Grow</div>
+      <p style="font-size:13px;line-height:1.7;">Join a <strong>Self Help Group (SHG)</strong> in your village for group loans, training and peer support. Contact your nearest <strong>Anganwadi centre</strong> or <strong>DRDA office</strong> to find SHGs near you.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MOTIVATION PAGE ==================== -->
+<div class="page" id="page-motivation">
+
+  <div class="section-title">✨ Inspiring Women Stories</div>
+
+  <div class="story-card pink">
+    <div class="story-quote">"</div>
+    <div class="story-name">Savitri Devi, 34</div>
+    <div class="story-sub">Tailoring Business Owner — Nizamabad, Telangana</div>
+    <div class="story-text">Started with a single sewing machine and a ₹50,000 Mudra loan. Today she runs a boutique with 5 employees and earns ₹45,000/month. "I never imagined I could be a job creator," she says with pride.</div>
+    <div class="story-tag">💡 Used: Mudra Yojana + PMKVY Training</div>
+  </div>
+
+  <div class="story-card blue">
+    <div class="story-quote">"</div>
+    <div class="story-name">Rekha Kumari, 28</div>
+    <div class="story-sub">Online Tutor — Warangal, Telangana</div>
+    <div class="story-text">A class 10 dropout who learned computer basics through PMKVY. She now teaches 40 students online via video calls, earning ₹18,000/month from home while caring for her two children.</div>
+    <div class="story-tag">💡 Used: PMKVY Digital Course + Jan Dhan Account</div>
+  </div>
+
+  <div class="story-card green">
+    <div class="story-quote">"</div>
+    <div class="story-name">Lakshmi Bai, 45</div>
+    <div class="story-sub">Handicraft Exporter — Medak, Telangana</div>
+    <div class="story-text">Used PM Vishwakarma Yojana to get certified and received a ₹15,000 toolkit. Her bamboo craft products now sell on Amazon and Flipkart. Monthly income grew from ₹3,000 to ₹40,000 in just 2 years.</div>
+    <div class="story-tag">💡 Used: PM Vishwakarma Yojana + Digital Marketing</div>
+  </div>
+
+  <div class="section-title" style="margin-top:20px;">📺 Learning Videos</div>
+
+  <div class="video-card" onclick="openVideo('https://www.youtube.com/results?search_query=tailoring+business+women+india+hindi')">
+    <div class="video-thumb" style="background:linear-gradient(135deg,#C2185B,#F57C00);">🧵</div>
+    <div class="video-info">
+      <div class="video-title">Start a Tailoring Business from Home</div>
+      <div class="video-meta">Hindi • ~18 min • Skill Development</div>
+    </div>
+    <span class="play-btn">▶</span>
+  </div>
+
+  <div class="video-card" onclick="openVideo('https://www.youtube.com/results?search_query=government+schemes+women+india+2024+hindi')">
+    <div class="video-thumb" style="background:linear-gradient(135deg,#1565C0,#00897B);">📋</div>
+    <div class="video-info">
+      <div class="video-title">Government Schemes for Women Explained</div>
+      <div class="video-meta">Hindi + Telugu • ~22 min • Financial Literacy</div>
+    </div>
+    <span class="play-btn">▶</span>
+  </div>
+
+  <div class="video-card" onclick="openVideo('https://www.youtube.com/results?search_query=UPI+digital+payment+tutorial+hindi+beginners')">
+    <div class="video-thumb" style="background:linear-gradient(135deg,#6A1B9A,#1565C0);">💻</div>
+    <div class="video-info">
+      <div class="video-title">UPI &amp; Digital Payments for Beginners</div>
+      <div class="video-meta">Telugu + Hindi • ~15 min • Digital Literacy</div>
+    </div>
+    <span class="play-btn">▶</span>
+  </div>
+
+  <div class="video-card" onclick="openVideo('https://www.youtube.com/results?search_query=tiffin+service+business+women+home+india')">
+    <div class="video-thumb" style="background:linear-gradient(135deg,#E65100,#F57C00);">🍱</div>
+    <div class="video-info">
+      <div class="video-title">How to Start Tiffin Service Business</div>
+      <div class="video-meta">Hindi • ~20 min • Business Ideas</div>
+    </div>
+    <span class="play-btn">▶</span>
+  </div>
+
+  <div class="video-card" onclick="openVideo('https://www.youtube.com/results?search_query=sell+handicrafts+online+amazon+flipkart+india')">
+    <div class="video-thumb" style="background:linear-gradient(135deg,#2E7D32,#00897B);">🎨</div>
+    <div class="video-info">
+      <div class="video-title">Sell Handicrafts Online — Amazon &amp; Flipkart</div>
+      <div class="video-meta">Hindi • ~25 min • E-Commerce</div>
+    </div>
+    <span class="play-btn">▶</span>
+  </div>
+
+  <div class="section-title" style="margin-top:20px;">💪 Daily Affirmation</div>
+  <div class="affirmation-card">
+    <div style="font-size:36px;margin-bottom:12px;">🌸</div>
+    <p id="affirmation">"I am capable, I am strong, and I deserve every opportunity that comes my way."</p>
+    <button class="outline-btn" onclick="newAffirmation()">New Affirmation 🔄</button>
+  </div>
+
+  <div class="section-title" style="margin-top:20px;">📊 Your Progress Journey</div>
+  <div class="card">
+    <div class="progress-item">
+      <div class="progress-label"><span>Profile Completion</span><span class="progress-pct" style="color:var(--primary);">65%</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div>
+    </div>
+    <div class="progress-item">
+      <div class="progress-label"><span>Schemes Explored</span><span class="progress-pct" style="color:var(--secondary);">3 of 42</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:7%;background:linear-gradient(90deg,#F57C00,#FFC107);"></div></div>
+    </div>
+    <div class="progress-item">
+      <div class="progress-label"><span>Skills Registered</span><span class="progress-pct" style="color:#00897B;">2 Skills</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:40%;background:linear-gradient(90deg,#00897B,#26A69A);"></div></div>
+    </div>
+    <div class="progress-item">
+      <div class="progress-label"><span>Videos Watched</span><span class="progress-pct" style="color:#6A1B9A;">1 of 5</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:20%;background:linear-gradient(90deg,#6A1B9A,#AB47BC);"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PROFILE PAGE ==================== -->
+<div class="page" id="page-profile">
+  <div class="card profile-top">
+    <div class="profile-avatar">👩</div>
+    <h3 id="profileName">Priya Devi</h3>
+    <p id="profileLocation">📍 Banswada, Telangana</p>
+    <div class="badge-row">
+      <span class="badge">🧵 Tailoring</span>
+      <span class="badge">🍳 Cooking</span>
+      <span class="badge green-badge">✅ Verified</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">✏️ Edit Profile</div>
+    <div class="input-row">
+      <label class="label">Full Name</label>
+      <input class="inp" id="pName" value="Priya Devi"/>
+    </div>
+    <div class="input-row">
+      <label class="label">Mobile Number</label>
+      <input class="inp" id="pMobile" placeholder="Enter 10-digit mobile number" type="tel"/>
+    </div>
+    <div class="input-row">
+      <label class="label">Village / City</label>
+      <input class="inp" id="pCity" value="Banswada, Telangana"/>
+    </div>
+    <div class="input-row">
+      <label class="label">Age</label>
+      <input class="inp" id="pAge" placeholder="Your age" type="number" min="18" max="70"/>
+    </div>
+    <div class="input-row">
+      <label class="label">Education</label>
+      <select class="inp" id="pEdu">
+        <option>No formal education</option>
+        <option>Primary (up to class 5)</option>
+        <option>Secondary (class 6-10)</option>
+        <option>Higher Secondary (class 11-12)</option>
+        <option>Graduate</option>
+        <option>Post Graduate</option>
+      </select>
+    </div>
+    <button class="primary-btn" onclick="saveProfile()">Save Profile ✓</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏆 My Achievements</div>
+    <div class="badge-row">
+      <span class="badge">🌟 First Login</span>
+      <span class="badge">📋 Scheme Explorer</span>
+      <span class="badge">💼 Skill Registered</span>
+      <span class="badge">🤖 AI User</span>
+      <span class="badge purple-badge">🎯 Opportunity Finder</span>
+    </div>
+  </div>
+
+  <div class="card helpline-card">
+    <div class="card-title" style="color:#1B5E20;">🛡️ Emergency Helplines</div>
+    <div class="helpline-grid">
+      <div class="helpline-item"><span>📞 Women Helpline</span><strong>1091</strong></div>
+      <div class="helpline-item"><span>📞 Domestic Violence</span><strong>181</strong></div>
+      <div class="helpline-item"><span>📞 Police Emergency</span><strong>100</strong></div>
+      <div class="helpline-item"><span>📞 Child Helpline</span><strong>1098</strong></div>
+      <div class="helpline-item"><span>📞 Ambulance</span><strong>108</strong></div>
+      <div class="helpline-item"><span>📞 Cyber Crime</span><strong>1930</strong></div>
+    </div>
+  </div>
+
+  <div class="card" style="background:linear-gradient(135deg,#FFF8E1,#FFF3E0);">
+    <div class="card-title" style="color:#E65100;">ℹ️ About ShaktiPath</div>
+    <p style="font-size:13px;line-height:1.7;color:#5D4037;">ShaktiPath is an AI-powered women empowerment platform designed to help rural and semi-urban women access government schemes, find income opportunities, and build confidence. Powered by Claude AI from Anthropic.</p>
+    <p style="font-size:12px;color:#8D6E63;margin-top:8px;">Version 1.0 | Built with ❤️ for women empowerment | 2024</p>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+
+<script src="static/js/app.js"></script>
+</body>
+</html>
