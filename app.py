@@ -4,6 +4,8 @@ import logging
 from flask import Flask, request, jsonify, send_from_directory
 from pymongo import MongoClient
 import requests
+import uuid
+import datetime
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -260,6 +262,114 @@ def get_schemes():
     except Exception as e:
         logger.error(f"Error reading JSON fallback: {e}")
         return jsonify([])
+
+@app.route('/api/workers', methods=['GET', 'POST'])
+def manage_workers():
+    if request.method == 'GET':
+        state = request.args.get('state')
+        skill = request.args.get('skill')
+        avail = request.args.get('avail')
+        city = request.args.get('city')
+        
+        try:
+            with open('workers_db.json', 'r', encoding='utf-8') as f:
+                workers = json.load(f)
+                
+            filtered = []
+            for w in workers:
+                if state and state != 'all' and w.get('state') != state:
+                    continue
+                if skill and skill != 'all' and skill not in w.get('skills', []):
+                    continue
+                if avail and avail != 'all':
+                    w_avail = w.get('avail', '')
+                    if avail.lower() == 'part-time' and 'part-time' not in w_avail.lower():
+                        continue
+                    elif avail.lower() != 'part-time' and w_avail.lower() != avail.lower():
+                        continue
+                if city and city.lower() not in w.get('city', '').lower():
+                    continue
+                filtered.append(w)
+            return jsonify(filtered)
+        except Exception as e:
+            logger.error(f"Error reading workers_db.json: {e}")
+            return jsonify([])
+
+    elif request.method == 'POST':
+        data = request.json
+        data['id'] = "w_" + uuid.uuid4().hex[:8]
+        data['rating'] = "New"
+        data['avatar'] = data.get('name', 'W')[0].upper()
+        
+        try:
+            workers = []
+            if os.path.exists('workers_db.json'):
+                with open('workers_db.json', 'r', encoding='utf-8') as f:
+                    workers = json.load(f)
+            
+            workers.insert(0, data)
+            with open('workers_db.json', 'w', encoding='utf-8') as f:
+                json.dump(workers, f, indent=2)
+                
+            return jsonify({"success": True, "message": "Worker registered!"})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+@app.route('/api/messages', methods=['GET', 'POST'])
+def manage_messages():
+    if request.method == 'GET':
+        try:
+            if not os.path.exists('messages_db.json'):
+                return jsonify({"threads": []})
+            with open('messages_db.json', 'r', encoding='utf-8') as f:
+                db = json.load(f)
+            
+            threads = db.get('threads', [])
+            return jsonify({"threads": threads})
+        except Exception as e:
+            return jsonify({"threads": []})
+
+    elif request.method == 'POST':
+        data = request.json
+        worker_id = data.get('worker_id')
+        worker_name = data.get('worker_name', 'Worker')
+        worker_avatar = data.get('worker_avatar', 'W')
+        text = data.get('text')
+        sender = data.get('sender', 'user')
+        
+        try:
+            db = {"threads": []}
+            if os.path.exists('messages_db.json'):
+                with open('messages_db.json', 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    if content.strip():
+                        loaded = json.loads(content)
+                        if 'threads' in loaded:
+                            db['threads'] = loaded['threads']
+                    
+            thread = next((t for t in db['threads'] if t['id'] == worker_id), None)
+            if not thread:
+                thread = {
+                    "id": worker_id,
+                    "name": worker_name,
+                    "avatar": worker_avatar,
+                    "messages": []
+                }
+                db['threads'].insert(0, thread)
+                
+            msg = {
+                "text": text,
+                "sender": sender,
+                "time": datetime.datetime.now().strftime("%I:%M %p")
+            }
+            thread['messages'].append(msg)
+            
+            with open('messages_db.json', 'w', encoding='utf-8') as f:
+                json.dump(db, f, indent=2)
+                
+            return jsonify({"success": True, "thread": thread})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 5000))

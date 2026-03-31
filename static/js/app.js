@@ -75,32 +75,84 @@ function filterSchemes() {
   renderSchemes(filtered);
 }
 
-function renderSchemes(schemes) {
-  const list = document.getElementById('schemesList');
-  if(!list) return;
+let currentRenderedSchemes = [];
 
-  if (schemes.length === 0) {
-    list.innerHTML = '<div style="padding:20px;text-align:center;">No schemes found matching criteria.</div>';
+function renderSchemes(schemes) {
+  const container = document.getElementById('schemesList');
+  if(!container) return;
+  container.innerHTML = '';
+  
+  if(schemes.length === 0) {
+    container.innerHTML = `<div style="padding:40px; text-align:center; color:var(--muted)">No schemes found matching your filters.</div>`;
     return;
   }
 
-  list.innerHTML = schemes.map(s => `
-    <div class="scheme-card" data-cat="${escapeHtml(s.category)}" data-state="${escapeHtml(s.state)}">
-      <div class="scheme-header" onclick="toggleScheme(this)">
-        <div>
-          <div class="scheme-name">${escapeHtml(s.name)}</div>
-          <span class="scheme-badge ${escapeHtml(s.category)}">${escapeHtml(s.category).toUpperCase()}</span>
-        </div>
-        <span class="arrow">▼</span>
+  currentRenderedSchemes = schemes;
+  const grid = document.createElement('div');
+  grid.className = 'schemes-grid';
+
+  schemes.forEach((s, idx) => {
+    const card = document.createElement('div');
+    card.className = 'card scheme-card';
+    
+    // Default values if missing
+    const badgeTxt = (s.state === 'All India' || s.state === 'Central') ? 'Central Govt' : s.state || 'Govt Scheme';
+    const tagsArray = s.tags || [s.category, 'Women'];
+    const timeTxt = s.time || '15-30 days';
+    
+    const tagsHTML = tagsArray.slice(0, 3).map(t => `<span class="sc-tag">${t}</span>`).join('');
+    
+    card.innerHTML = `
+      <div class="sc-badge">${badgeTxt}</div>
+      <div class="sc-title">${s.name}</div>
+      <div class="sc-desc">${s.description || ''}</div>
+      <div class="sc-tags">${tagsHTML}</div>
+      <div class="sc-footer">
+        <div class="sc-time">⏱️ ${timeTxt}</div>
+        <button class="sc-apply-btn" onclick="openSchemeModal(${idx})">Apply Now</button>
       </div>
-      <div class="scheme-body">
-        <div class="info-row"><span class="info-label">${s.icon || '📌'} Description:</span><span class="info-val">${escapeHtml(s.description)}</span></div>
-        <div class="info-row"><span class="info-label">📍 State:</span><span class="info-val">${escapeHtml(s.state)}</span></div>
-        <div class="info-row"><span class="info-label">🌐 Website:</span><span class="info-val"><a href="${escapeHtml(s.link)}" target="_blank">${escapeHtml(s.link)}</a></span></div>
-        <button class="apply-btn" onclick="askAI('Tell me more about ${escapeJs(s.name)} and how to apply in ${escapeJs(s.state)}.')">Ask AI for Help 🤖</button>
-      </div>
-    </div>
-  `).join('');
+    `;
+    grid.appendChild(card);
+  });
+  
+  container.appendChild(grid);
+}
+
+// Global modal function
+window.openSchemeModal = function(idx) {
+  const s = currentRenderedSchemes[idx];
+  if(!s) return;
+  
+  document.getElementById('m-title').innerText = s.name;
+  
+  const badgeTxt = (s.state === 'All India' || s.state === 'Central') ? 'Central Govt' : s.state || 'Govt Scheme';
+  document.getElementById('m-badge').innerText = badgeTxt + (s.category ? ' • ' + s.category.toUpperCase() : '');
+  
+  document.getElementById('m-desc').innerText = s.description || '';
+  document.getElementById('m-elig').innerText = s.eligibility || 'Specific criteria apply based on state guidelines. Refer to official website.';
+  document.getElementById('m-ben').innerText = s.benefits || 'Financial and social assistance.';
+  
+  const docList = s.documents || ['Aadhaar Card', 'Income/Caste Certificate', 'Bank Passbook', 'Passport Photo'];
+  document.getElementById('m-docs').innerHTML = docList.map(d => `<li>${d}</li>`).join('');
+  
+  const stepList = s.steps || ['Visit respective center', 'Submit application form', 'Document Verification', 'Approval & Disbursement'];
+  document.getElementById('m-steps').innerHTML = stepList.map(step => `<li>${step}</li>`).join('');
+  
+  document.getElementById('m-time').innerHTML = `⏱️ ${s.time || '15-30 days'}`;
+  
+  const applyBtn = document.querySelector('.modal-btn');
+  if(applyBtn) {
+    applyBtn.onclick = function() {
+      if(s.link) window.open(s.link, '_blank');
+      closeSchemeModal();
+    };
+  }
+  
+  document.getElementById('schemeModal').classList.add('active');
+}
+
+window.closeSchemeModal = function() {
+  document.getElementById('schemeModal').classList.remove('active');
 }
 
 function filterTab(cat, btn) {
@@ -257,7 +309,7 @@ function appendMsg(role, text) {
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/•/g, '•');
   div.innerHTML = `
-    <div class="msg-avatar">${role === 'user' ? '👩' : '🌸'}</div>
+    <div class="msg-avatar" style="overflow:hidden;">${role === 'user' ? '👩' : '<img src="/static/logo.png" style="width:100%;height:100%;object-fit:cover;"/>'}</div>
     <div class="msg-bubble">${formattedText}</div>`;
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
@@ -269,7 +321,7 @@ function showTypingIndicator() {
   div.className = 'msg bot';
   div.id = 'typing-indicator';
   div.innerHTML = `
-    <div class="msg-avatar">🌸</div>
+    <div class="msg-avatar" style="overflow:hidden;"><img src="/static/logo.png" style="width:100%;height:100%;object-fit:cover;"/></div>
     <div class="typing"><span></span><span></span><span></span></div>`;
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
@@ -316,7 +368,7 @@ Guidelines:
     document.getElementById('typing-indicator')?.remove();
     appendMsg('bot', reply);
     chatHistory.push({ role: 'assistant', content: reply });
-    document.getElementById('aiStatus').textContent = 'Online — Powered by Claude AI';
+    document.getElementById('aiStatus').textContent = 'Sakhi AI';
 
     if (autoSpeak && window.speechSynthesis) {
       speakText(reply.replace(/<[^>]*>/g, ''));
@@ -324,7 +376,7 @@ Guidelines:
   } catch (e) {
     console.error('Chat error:', e);
     document.getElementById('typing-indicator')?.remove();
-    document.getElementById('aiStatus').textContent = 'Online — Powered by Claude AI';
+    document.getElementById('aiStatus').textContent = 'Sakhi AI';
 
     const fallbacks = [
       "Namaste! 🌸 I'm here to help you. For government schemes, visit your nearest Anganwadi centre or CSC (Common Service Centre). They can help you with applications for Mudra Yojana, PMKVY, and other schemes. Is there something specific you'd like to know?",
@@ -538,6 +590,8 @@ function escapeJs(str) {
 document.addEventListener('DOMContentLoaded', () => {
   loadProfile();
   loadSchemesData();
+  loadDirectory();
+  loadInbox();
 
   console.log('🌸 ShaktiPath Women Empowerment Platform loaded successfully!');
   console.log('🛠️ Powered by Flask Backend and DB Integration');
@@ -561,3 +615,315 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(changeBg, 15000); // Rotate every 15s
   }
 });
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('theme', 'light');
+    document.getElementById('themeToggleBtn').innerText = '🌙';
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('theme', 'dark');
+    document.getElementById('themeToggleBtn').innerText = '☀️';
+  }
+}
+
+(function initTheme() {
+  if (localStorage.getItem('theme') === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    window.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('themeToggleBtn');
+      if (btn) btn.innerText = '☀️';
+    });
+  } else {
+    window.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('themeToggleBtn');
+      if (btn) btn.innerText = '🌙';
+    });
+  }
+})();
+
+// ===== DIRECTORY & INBOX LOGIC =====
+
+function addCustomSkill() {
+  const inp = document.getElementById('customSkill');
+  const val = inp.value.trim();
+  if(!val) return;
+  const chip = document.createElement('div');
+  chip.className = 'skill-chip rt-chip selected';
+  chip.dataset.skill = val;
+  chip.innerText = val;
+  chip.onclick = function() { toggleSkill(this); };
+  document.getElementById('registerSkillChips').appendChild(chip);
+  inp.value = '';
+}
+
+async function submitRegistration() {
+  const skills = [...document.getElementById('registerSkillChips').querySelectorAll('.selected')].map(c => c.dataset.skill || c.innerText);
+  const minInc = document.getElementById('regMinIncome').value;
+  const maxInc = document.getElementById('regMaxIncome').value;
+  const about = document.getElementById('regAbout').value;
+  const state = document.getElementById('regState').value;
+  const city = document.getElementById('regCity').value;
+  const avail = [...document.getElementById('registerAvailChips').querySelectorAll('.selected')].map(c => c.innerText)[0] || 'Flexible';
+  
+  if(!skills.length || !minInc || !maxInc || !state || !city) {
+    showToast('Please fill all required (*) fields!');
+    return;
+  }
+  
+  // Use explicit name input, OR Firebase Profile Name, otherwise generic 
+  const name = document.getElementById('regName').value || window.currentProfileName || "Registered Worker";
+  
+  const payload = {
+    name: name || "Registered Worker",
+    skills: skills,
+    income: `₹${minInc}-₹${maxInc}/mo`,
+    desc: about,
+    state: state,
+    city: city,
+    avail: avail,
+    exp: "New",
+    contact: "Contact via Inbox"
+  };
+  
+  try {
+    const res = await fetch('/api/workers', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if(res.ok) {
+      showToast('Registration successful! Your profile is public.🎉');
+      showPage('directory', document.querySelectorAll('.nav-btn')[3]);
+      loadDirectory();
+    } else {
+      showToast('Error registering skills.');
+    }
+  } catch(e) {
+    showToast('Network error.');
+  }
+}
+
+async function loadDirectory() {
+  const state = document.getElementById('dirState').value;
+  const skill = document.getElementById('dirSkill').value;
+  const avail = document.getElementById('dirAvail').value;
+  const city = document.getElementById('dirCity').value;
+  
+  document.getElementById('dirCountText').innerText = 'Loading...';
+  document.getElementById('dirCountBadge').innerText = '...';
+  
+  let url = `/api/workers?state=${encodeURIComponent(state)}&skill=${encodeURIComponent(skill)}&avail=${encodeURIComponent(avail)}&city=${encodeURIComponent(city)}`;
+  
+  try {
+    const res = await fetch(url);
+    const workers = await res.json();
+    const grid = document.getElementById('dirGrid');
+    grid.innerHTML = '';
+    
+    document.getElementById('dirCountText').innerText = `Showing ${workers.length} profiles`;
+    document.getElementById('dirCountBadge').innerText = `${workers.length} WORKERS`;
+    
+    workers.forEach(w => {
+      const card = document.createElement('div');
+      card.className = 'worker-card';
+      
+      const tagsH = (w.skills || []).map(s => `<span class="wt-tag">${escapeHtml(s)}</span>`).join('');
+      
+      card.innerHTML = `
+        <div class="worker-header">
+          <div class="worker-av">${escapeHtml(w.avatar || 'W')}</div>
+          <div>
+            <div class="worker-name">${escapeHtml(w.name)} <span style="font-size:12px;color:#f39c12">⭐ ${w.rating||'New'}</span></div>
+            <div class="worker-loc">📍 ${escapeHtml(w.city)}, ${escapeHtml(w.state)}</div>
+            <div class="worker-avail">${escapeHtml(w.avail)}</div>
+          </div>
+        </div>
+        <div class="worker-tags">${tagsH}</div>
+        <div class="worker-desc">${escapeHtml(w.desc || '')}</div>
+        <div class="worker-stats">
+          <span style="color:#d35400;">${escapeHtml(w.income)}</span>
+          <span style="color:#7f8c8d;">${escapeHtml(w.exp)}</span>
+        </div>
+        <div class="worker-footer">
+          <div class="worker-contact">📧 ${escapeHtml(w.contact || 'No email')}</div>
+          <button class="worker-msg-btn" onclick="openMessage('${escapeJs(w.id)}', '${escapeJs(w.name)}')">💬 Message</button>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  } catch(e) {
+    document.getElementById('dirCountText').innerText = 'Error loading directory';
+  }
+}
+
+function clearDirFilters() {
+  document.getElementById('dirState').value = 'all';
+  document.getElementById('dirSkill').value = 'all';
+  document.getElementById('dirAvail').value = 'all';
+  document.getElementById('dirCity').value = '';
+  loadDirectory();
+}
+
+function openMessage(workerId, workerName) {
+  showPage('inbox', document.querySelectorAll('.nav-btn')[3]); 
+  loadInbox(workerId, workerName);
+}
+
+let activeThreadId = null;
+let isInboxSelecting = false;
+
+async function loadInbox(threadToSelectId = null, threadToSelectName = null) {
+  try {
+    const res = await fetch('/api/messages');
+    const data = await res.json();
+    let threads = data.threads || [];
+    
+    // Inject optimistic dummy thread explicitly if DB returns empty for this user interaction
+    if (threadToSelectId && !threads.find(t => t.id === threadToSelectId)) {
+       threads.unshift({
+           id: threadToSelectId,
+           name: threadToSelectName || "Worker",
+           avatar: (threadToSelectName || "W")[0].toUpperCase(),
+           messages: []
+       });
+    }
+
+    const list = document.getElementById('inboxList');
+    list.innerHTML = '';
+    
+    if(threads.length === 0) {
+      list.innerHTML = '<div style="padding:20px; text-align:center; color:var(--muted); font-size:14px;">No conversations.<br><br><span style="font-size:11px;opacity:0.6;">Click "Message" on any Worker Profile in the Skill Directory to begin.</span></div>';
+      return;
+    }
+    
+    threads.forEach(t => {
+      const msgs = t.messages || [];
+      const lastMsg = msgs.length > 0 ? msgs[msgs.length - 1].text : 'Click to send first message';
+      const lastTime = msgs.length > 0 ? msgs[msgs.length - 1].time : '';
+      
+      const div = document.createElement('div');
+      div.className = 'inbox-thread' + (activeThreadId === t.id ? ' active' : '');
+      div.onclick = () => selectThread(t);
+      div.innerHTML = `
+        <div class="inbox-thread-av">${escapeHtml(t.avatar || 'W')}</div>
+        <div class="inbox-thread-info">
+          <div class="inbox-thread-name">${escapeHtml(t.name)}</div>
+          <div class="inbox-thread-msg">${escapeHtml(lastMsg)}</div>
+        </div>
+        <span class="inbox-thread-time">${escapeHtml(lastTime)}</span>
+      `;
+      list.appendChild(div);
+      
+      if(threadToSelectId && t.id === threadToSelectId) {
+        if(!isInboxSelecting) { isInboxSelecting = true; selectThread(t); isInboxSelecting = false; }
+      }
+    });
+    
+    if(!threadToSelectId && !activeThreadId && threads.length > 0) {
+       if(!isInboxSelecting) { isInboxSelecting = true; selectThread(threads[0]); isInboxSelecting = false; }
+    }
+  } catch(e) {
+    console.error('Error loading inbox', e);
+  }
+}
+
+let currentChatListener = null;
+
+function selectThread(t) {
+  activeThreadId = t.id;
+  activeThreadObj = t;
+  document.getElementById('chatAv').innerText = t.avatar || 'W';
+  document.getElementById('chatName').innerText = t.name;
+  document.getElementById('chatStatus').innerText = 'Online';
+  
+  const inp = document.getElementById('inboxInput');
+  const btn = document.getElementById('inboxSendBtn');
+  inp.disabled = false;
+  btn.disabled = false;
+  btn.style.opacity = '1';
+  
+  const msgBox = document.getElementById('inboxMessages');
+  msgBox.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); font-size:14px;">Connecting to secure chat...</div>';
+  
+  document.querySelectorAll('.inbox-thread').forEach(el => el.classList.remove('active'));
+  
+  if(!window.db) {
+      msgBox.innerHTML = '<div style="color:red; padding:20px; text-align:center;">[System Error] Firebase Database not initialized properly.</div>';
+      return;
+  }
+  
+  if(currentChatListener) currentChatListener();
+  
+  try {
+      const q = window.query(window.collection(window.db, "chats", t.id, "messages"), window.orderBy("timestamp"));
+      currentChatListener = window.onSnapshot(q, (snapshot) => {
+          msgBox.innerHTML = '';
+          if(snapshot.empty) {
+              msgBox.innerHTML = '<div style="text-align:center; color:#95a5a6; margin-top:40px; font-size:14px;">Say hi! Start the secure conversation.</div>';
+          }
+          snapshot.forEach((doc) => {
+              const m = doc.data();
+              const isUser = window.currentProfileEmail ? (m.senderEmail === window.currentProfileEmail) : (m.sender === 'user');
+              
+              const cls = isUser ? 'sent' : 'received';
+              const timeStr = m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now';
+              
+              const div = document.createElement('div');
+              div.style.alignSelf = isUser ? 'flex-end' : 'flex-start';
+              div.style.background = isUser ? 'var(--primary)' : 'var(--card-bg)';
+              div.style.color = isUser ? '#fff' : 'var(--text)';
+              div.style.padding = '12px 18px';
+              div.style.border = isUser ? 'none' : '1px solid var(--border-color)';
+              div.style.borderRadius = '20px';
+              div.style.borderBottomRightRadius = isUser ? '4px' : '20px';
+              div.style.borderBottomLeftRadius = !isUser ? '4px' : '20px';
+              div.style.boxShadow = '0 4px 15px rgba(0,0,0,0.05)';
+              div.style.maxWidth = '80%';
+              div.style.marginBottom = '12px';
+              
+              div.innerHTML = escapeHtml(m.text) + `<div style="font-size:10px; opacity:0.7; margin-top:6px; text-align:right;">${timeStr}</div>`;
+              msgBox.appendChild(div);
+          });
+          msgBox.scrollTop = msgBox.scrollHeight;
+      }, (err) => {
+          msgBox.innerHTML = `
+            <div style="background:var(--card-bg); border:2px solid #e91e63; padding:20px; border-radius:12px; margin:20px;">
+              <h4 style="color:#e91e63; margin-bottom:12px;">🛑 Action Required: Enable Firestore</h4>
+              <p style="font-size:14px; margin:8px 0; color:var(--text);">Firebase is blocking the Chatroom because your Database is not created.</p>
+              <ol style="font-size:13px; margin-left:15px; color:var(--muted); line-height:1.7;">
+               <li>Go to <b>console.firebase.google.com</b></li>
+               <li>Open <b>woman-empowerment-4825a</b></li>
+               <li>Click <b>Build -> Firestore Database</b></li>
+               <li>Click <b>Create database</b></li>
+               <li>Start in <b>Test mode</b></li>
+               <li>Select any location and hit <b>Create</b>!</li>
+              </ol>
+            </div>`;
+      });
+  } catch(e) {
+      console.error(e);
+  }
+}
+
+async function sendInboxMessage() {
+  if(!activeThreadId || !window.db) return;
+  const inp = document.getElementById('inboxInput');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  inp.value = '';
+  
+  try {
+      await window.addDoc(window.collection(window.db, "chats", activeThreadId, "messages"), {
+          text: txt,
+          sender: 'user',
+          senderEmail: window.currentProfileEmail || 'Anonymous',
+          timestamp: window.serverTimestamp()
+      });
+  } catch(err) {
+      alert("Failed to send: " + err.message);
+  }
+}
+

@@ -3,21 +3,105 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ShaktiPath — Women Empowerment Platform</title>
+  <title>Sakhi AI — Women Empowerment Platform</title>
   <link rel="stylesheet" href="static/css/style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC1pQL1NNCTmpq6aIJf6qkXVXUTgshTo-o",
+      authDomain: "woman-empowerment-4825a.firebaseapp.com",
+      projectId: "woman-empowerment-4825a",
+      storageBucket: "woman-empowerment-4825a.firebasestorage.app",
+      messagingSenderId: "41628859110",
+      appId: "1:41628859110:web:0c43e4b237cbaa8558d927",
+      measurementId: "G-XF3VCW8RYB"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    // Export globally for app.js
+    window.db = db;
+    window.collection = collection;
+    window.addDoc = addDoc;
+    window.query = query;
+    window.orderBy = orderBy;
+    window.onSnapshot = onSnapshot;
+    window.serverTimestamp = serverTimestamp;
+
+    onAuthStateChanged(auth, (user) => {
+        const btn = document.getElementById('googleLoginBtn');
+        const loginAction = async () => {
+             try {
+                 const provider = new GoogleAuthProvider();
+                 provider.setCustomParameters({ prompt: 'select_account' });
+                 await signInWithPopup(auth, provider);
+             } catch(e) { 
+                 if(e.code === 'auth/configuration-not-found') {
+                        document.body.innerHTML += `
+                          <div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:999999; display:flex; align-items:center; justify-content:center; color:white; font-family:'Inter', sans-serif; padding:20px;">
+                             <div style="background:#1A1A24; padding:40px; border-radius:20px; border:2px solid #e91e63; max-width:600px; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                                <h2 style="color:#ff4757; margin-bottom:12px;">🛑 Action Required: Enable Google Login</h2>
+                                <p style="font-size:15px; color:#dcdde1; line-height:1.6; margin-bottom:24px;">Firebase is blocking the login because it is disabled in your dashboard. You must physically turn it on inside your Firebase account to make this button work.</p>
+                                
+                                <div style="background:rgba(255,255,255,0.05); padding:20px; border-radius:12px; margin-bottom:24px;">
+                                  <h3 style="margin-bottom:12px; color:#f1c40f; font-size:16px;">Step-by-step Fix:</h3>
+                                  <ol style="margin-left:20px; font-size:14px; color:#ecf0f1; line-height:1.8;">
+                                    <li>Go to <b>console.firebase.google.com</b></li>
+                                    <li>Open your project: <b>woman-empowerment-4825a</b></li>
+                                    <li>Click <b>Build</b> ➔ <b>Authentication</b> on the left.</li>
+                                    <li>Click the <b>Sign-in method</b> tab.</li>
+                                    <li>Click <b>Add new provider</b> ➔ <b>Google</b>.</li>
+                                    <li>Toggle the switch to <b>Enable</b>, choose your email, and hit <b>Save</b>!</li>
+                                  </ol>
+                                </div>
+                                <button onclick="window.location.reload()" style="background:#e91e63; color:white; border:none; padding:14px 24px; border-radius:12px; cursor:pointer; font-weight:bold; width:100%;">I have enabled it, reload page</button>
+                             </div>
+                          </div>
+                        `;
+                 } else {
+                        alert("Google Sign-In Error: " + e.message); 
+                 }
+                 console.error('Login Error', e); 
+             }
+        };
+
+        if(!btn) return;
+        if(user) {
+            btn.innerHTML = `👤 ${user.displayName.split(' ')[0]} <span style="font-size:10px">(Logout)</span>`;
+            btn.onclick = () => signOut(auth);
+            window.currentProfileName = user.displayName;
+            window.currentProfileEmail = user.email;
+        } else {
+            btn.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="16" alt="G"> Sign In`;
+            btn.onclick = loginAction;
+            window.currentProfileName = null;
+        }
+    });
+  </script>
 </head>
 <body>
 <!-- STUNNING BACKGROUND SLIDESHOW -->
 <div class="bg-slideshow" id="bgSlideshow"></div>
 <div class="bg-overlay"></div>
+
 <!-- HEADER -->
 <div class="header">
   <div class="logo">
-    <div class="logo-icon">🌸</div>
-    <div class="logo-text">ShaktiPath <span>Women Empowerment Platform</span></div>
+    <div class="logo-icon"><img src="/static/logo.png" alt="Sakhi AI Logo" style="height:36px; border-radius:8px; margin-right:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1);"/></div>
+    <div class="logo-text">Sakhi AI <span>Women Empowerment</span></div>
   </div>
-  <button class="lang-btn" onclick="toggleLang()">🌐 English</button>
+  <div style="display:flex; align-items:center; gap:16px;">
+    <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()" style="font-size:20px; padding:4px; border-radius:50%; width:40px; height:40px; background:var(--glass); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(0,0,0,0.05);">🌙</button>
+    <div id="google_translate_element" style="overflow:hidden;"></div>
+    <button class="primary-btn" id="googleLoginBtn" style="padding:10px 20px; font-size:14px; border-radius:12px; display:flex; gap:8px; align-items:center;"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="16" alt="G"> Sign In</button>
+  </div>
 </div>
 
 <!-- NAVIGATION -->
@@ -25,18 +109,23 @@
   <button class="nav-btn active" onclick="showPage('home',this)">🏠 Home</button>
   <button class="nav-btn" onclick="showPage('assistant',this)">🤖 AI Assistant</button>
   <button class="nav-btn" onclick="showPage('schemes',this)">📋 Schemes</button>
-  <button class="nav-btn" onclick="showPage('skills',this)">💼 Skills &amp; Work</button>
+  <button class="nav-btn" onclick="showPage('directory',this)">👥 Skill Directory</button>
+  <button class="nav-btn" onclick="showPage('register',this)">📝 Register Skills</button>
+  <button class="nav-btn" onclick="showPage('inbox',this)">💬 Inbox</button>
   <button class="nav-btn" onclick="showPage('motivation',this)">✨ Motivation</button>
-  <button class="nav-btn" onclick="showPage('profile',this)">👤 Profile</button>
+  <button class="nav-btn" onclick="showPage('profile',this)" style="margin-left: auto;">👤 Profile</button>
 </div>
 
 <!-- ==================== HOME PAGE ==================== -->
 <div class="page active" id="page-home">
-  <div class="hero">
-    <div style="font-size:42px;margin-bottom:10px;">🌸</div>
-    <h2>Namaste! Welcome to ShaktiPath</h2>
-    <p>Your personal platform for skills, income opportunities, government schemes, and daily inspiration. Empowering women, one step at a time.</p>
-    <button class="primary-btn" style="width:auto;padding:11px 30px;" onclick="showPage('assistant',document.querySelectorAll('.nav-btn')[1])">Talk to AI Assistant →</button>
+  <div class="hero" style="background: url('/static/bg.jpg') center/cover no-repeat; padding: 60px 24px; color: white; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+    <div style="background: rgba(0,0,0,0.55); position: absolute; top:0; left:0; width:100%; height:100%; z-index: 0; backdrop-filter: blur(2px);"></div>
+    <div style="position: relative; z-index: 1;">
+      <img src="/static/logo.png" alt="Logo" style="height:60px; border-radius:12px; margin-bottom:15px; box-shadow:0 4px 15px rgba(0,0,0,0.2);"/>
+      <h2 style="color: white; font-size: 36px; text-shadow:0 2px 10px rgba(0,0,0,0.5); font-weight:800;">Namaste! Welcome to Sakhi AI</h2>
+      <p style="color: rgba(255,255,255,0.92); font-size:16px; text-shadow:0 2px 5px rgba(0,0,0,0.6); max-width:600px; line-height:1.7; margin:0 auto 30px auto;">Your personal platform for skills, income opportunities, government schemes, and daily inspiration. Empowering women, one step at a time.</p>
+      <button class="primary-btn" style="width:auto;padding:14px 34px; border:1px solid rgba(255,255,255,0.3); font-size:16px; box-shadow:0 8px 25px rgba(233,30,99,0.4);" onclick="showPage('assistant',document.querySelectorAll('.nav-btn')[1])">Talk to AI Assistant →</button>
+    </div>
   </div>
 
   <div class="stat-row">
@@ -52,10 +141,15 @@
       <div class="tile-label">Govt Schemes</div>
       <div class="tile-sub">Find schemes you qualify for</div>
     </div>
-    <div class="tile" onclick="showPage('skills',document.querySelectorAll('.nav-btn')[3])">
-      <div class="tile-icon">💼</div>
-      <div class="tile-label">Find Work</div>
-      <div class="tile-sub">Register skills &amp; earn income</div>
+    <div class="tile" onclick="showPage('directory',document.querySelectorAll('.nav-btn')[3])">
+      <div class="tile-icon">👥</div>
+      <div class="tile-label">Skill Directory</div>
+      <div class="tile-sub">Hire local women</div>
+    </div>
+    <div class="tile" onclick="showPage('register',document.querySelectorAll('.nav-btn')[4])">
+      <div class="tile-icon">📝</div>
+      <div class="tile-label">Register Skills</div>
+      <div class="tile-sub">Offer your services</div>
     </div>
     <div class="tile" onclick="showPage('assistant',document.querySelectorAll('.nav-btn')[1])">
       <div class="tile-icon">🤖</div>
@@ -88,17 +182,17 @@
 <div class="page" id="page-assistant">
   <div class="chat-container">
     <div class="chat-header">
-      <div class="chat-avatar">🤖</div>
+      <div class="chat-avatar" style="overflow:hidden;"><img src="/static/logo.png" style="width:100%;height:100%;object-fit:cover;"/></div>
       <div class="chat-header-text">
-        <p>Shakti AI Assistant</p>
-        <span id="aiStatus">Online — Powered by Claude AI</span>
+        <p>Sakhi AI</p>
+        <span id="aiStatus">Sakhi AI</span>
       </div>
       <button class="speak-toggle" onclick="toggleAutoSpeak()" id="speakBtn" title="Toggle voice responses">🔇</button>
     </div>
     <div class="chat-msgs" id="chatMsgs">
       <div class="msg bot">
-        <div class="msg-avatar">🌸</div>
-        <div class="msg-bubble">Namaste! I am Shakti, your AI assistant. I can help you with:<br><br>
+        <div class="msg-avatar" style="overflow:hidden;"><img src="/static/logo.png" style="width:100%;height:100%;object-fit:cover;"/></div>
+        <div class="msg-bubble">Namaste! I am Sakhi, your AI assistant. I can help you with:<br><br>
           • Government welfare schemes &amp; eligibility<br>
           • Finding local work &amp; income opportunities<br>
           • Skill development guidance<br>
@@ -198,58 +292,186 @@
   </div>
 </div>
 
-<!-- ==================== SKILLS & WORK PAGE ==================== -->
-<div class="page" id="page-skills">
-  <div class="section-title">💼 Register Your Skills</div>
-
-  <div class="card">
-    <p class="card-title">Select your skills (choose all that apply)</p>
-    <div class="skill-chips" id="skillChips">
-      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Tailoring &amp; Stitching">🧵 Tailoring</div>
-      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Cooking &amp; Food Preparation">🍳 Cooking</div>
-      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Handicrafts &amp; Embroidery">🧶 Handicrafts</div>
-      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Teaching &amp; Tuition">📚 Tuition</div>
-      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Beauty &amp; Parlour Services">💄 Beauty Services</div>
-      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Art &amp; Painting">🎨 Art &amp; Painting</div>
-      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Agriculture &amp; Farming">🌿 Agriculture</div>
-      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Computer &amp; Digital Skills">💻 Computer Skills</div>
-      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Yoga &amp; Wellness">🧘 Yoga &amp; Wellness</div>
-      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Housekeeping &amp; Cleaning">🏠 Housekeeping</div>
-      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Pickle &amp; Papad Making">🥫 Pickle / Papad</div>
-      <div class="skill-chip" onclick="toggleSkill(this)" data-skill="Babysitting &amp; Childcare">👶 Childcare</div>
-    </div>
-
-    <div class="input-row">
-      <label class="label">Your Location / Village / City *</label>
-      <input class="inp" id="locationInp" placeholder="e.g., Banswada, Nizamabad, Telangana"/>
-    </div>
-    <div class="input-row">
-      <label class="label">Years of Experience</label>
-      <select class="inp" id="expInp">
-        <option>Less than 1 year (Beginner)</option>
-        <option>1-2 years</option>
-        <option>3-5 years</option>
-        <option>5+ years (Expert)</option>
-      </select>
-    </div>
-    <div class="input-row">
-      <label class="label">Work Preference</label>
-      <select class="inp" id="prefInp">
-        <option>Home-based only</option>
-        <option>Local market / nearby</option>
-        <option>Online / remote</option>
-        <option>Any / flexible</option>
-      </select>
-    </div>
-    <button class="primary-btn" onclick="findOpportunities()">🔍 Find Opportunities Near Me</button>
+<!-- ==================== REGISTER SKILLS PAGE ==================== -->
+<div class="page" id="page-register">
+  <div style="text-align:center; margin-bottom:24px;">
+    <h2 style="font-size:32px; font-weight:800; color:#1C2939; font-family:'Poppins', sans-serif; letter-spacing:-0.5px;">Register Your Skills</h2>
+    <p style="color:var(--muted); font-size:15px; font-weight:500;">Share your talents and connect with local opportunities</p>
   </div>
+  
+  <div class="card" style="padding:32px; background:var(--glass); border-radius:16px; max-width:700px; margin:0 auto; box-shadow:0 12px 35px rgba(0,0,0,0.2); border:1px solid var(--glass-border);">
+    <div class="input-row">
+      <div class="label" style="margin-bottom:16px; font-size:15px; font-weight:700; color:var(--text);"><span style="margin-right:8px;">👤</span> Full Name <span style="color:#e74c3c">*</span></div>
+      <input type="text" id="regName" class="inp rt-inp" placeholder="e.g. Kavya Sharma" style="margin-bottom:24px;" />
+    </div>
 
-  <div id="opportunitiesSection" style="display:none;">
-    <div class="section-title">🎯 AI-Recommended Opportunities</div>
-    <div id="oppList"></div>
-    <div class="card" style="background:linear-gradient(135deg,#E8F5E9,#E3F2FD);margin-top:4px;">
-      <div class="card-title" style="color:#1B5E20;">📞 Connect &amp; Grow</div>
-      <p style="font-size:13px;line-height:1.7;">Join a <strong>Self Help Group (SHG)</strong> in your village for group loans, training and peer support. Contact your nearest <strong>Anganwadi centre</strong> or <strong>DRDA office</strong> to find SHGs near you.</p>
+    <div class="input-row">
+      <div class="label" style="margin-bottom:16px; font-size:15px; font-weight:700; color:var(--text);">🎯 Select Your Skills <span style="color:#e74c3c">*</span></div>
+      <div id="registerSkillChips" class="skill-chips" style="margin:0 0 20px 0; gap:10px;">
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Cooking</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Tailoring</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Handicrafts</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Tuition</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Beauty Services</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Embroidery</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Catering</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Yoga</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Dance</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Music</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Mehendi</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Pottery</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Agriculture</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Weaving</div>
+      </div>
+      <div style="display:flex; gap:12px; max-width:400px; align-items:center;">
+        <input type="text" id="customSkill" class="inp" placeholder="Add custom skill..." style="margin:0; flex:1; border-radius:8px; padding:12px 16px; border:1px solid #dcdde1;" onkeydown="if(event.key==='Enter')addCustomSkill()"/>
+        <button style="background:#2c3e50; color:#fff; border-radius:50%; width:44px; height:44px; border:none; font-size:24px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(44,62,80,0.2);" onclick="addCustomSkill()">+</button>
+      </div>
+    </div>
+    
+    <div class="input-row" style="margin-top:32px;">
+      <div class="label" style="font-size:15px; font-weight:700; color:#2c3e50;">💰 Expected Income Range (₹/month) <span style="color:#e74c3c">*</span></div>
+      <div style="display:flex; gap:20px; margin-top:12px;">
+        <div style="flex:1;">
+          <small style="color:#7f8c8d; font-weight:500;">Minimum</small>
+          <input type="number" id="regMinIncome" class="inp rt-inp" placeholder="e.g. 5000" />
+        </div>
+        <div style="flex:1;">
+          <small style="color:#7f8c8d; font-weight:500;">Maximum</small>
+          <input type="number" id="regMaxIncome" class="inp rt-inp" placeholder="e.g. 20000" />
+        </div>
+      </div>
+    </div>
+    
+    <div class="input-row" style="margin-top:32px;">
+      <div class="label" style="font-size:15px; font-weight:700; color:#2c3e50;">📝 About Your Services</div>
+      <textarea id="regAbout" class="inp rt-inp" rows="4" placeholder="Describe your skills, experience, and what services you offer..." style="resize:vertical;"></textarea>
+    </div>
+    
+    <div class="input-row" style="margin-top:32px;">
+      <div class="label" style="font-size:15px; font-weight:700; color:#2c3e50;">📍 Location <span style="color:#e74c3c">*</span></div>
+      <div style="display:flex; gap:20px; margin-top:12px;">
+        <div style="flex:1;">
+          <small style="color:#7f8c8d; font-weight:500;">State *</small>
+          <select id="regState" class="inp rt-inp">
+            <option value="">Select State</option>
+            <option value="Telangana">Telangana</option>
+            <option value="Maharashtra">Maharashtra</option>
+            <option value="Karnataka">Karnataka</option>
+            <option value="Rajasthan">Rajasthan</option>
+            <option value="Tamil Nadu">Tamil Nadu</option>
+          </select>
+        </div>
+        <div style="flex:1;">
+          <small style="color:#7f8c8d; font-weight:500;">City *</small>
+          <input type="text" id="regCity" class="inp rt-inp" placeholder="Select City" />
+        </div>
+      </div>
+      <button style="margin-top:16px; display:inline-flex; align-items:center; gap:8px; border-radius:8px; background:#fff; font-size:13px; font-weight:600; padding:10px 16px; border:1px solid #dcdde1; color:#34495e; cursor:pointer;" onclick="showToast('Location verified!📍')"><span style="color:#e74c3c">📍</span> Verify My Location via GPS</button>
+      <div style="font-size:12px; color:#95a5a6; margin-top:8px; font-weight:500;">Your GPS location helps employers find you on the map.</div>
+    </div>
+    
+    <div class="input-row" style="margin-top:32px;">
+      <div class="label" style="margin-bottom:16px; font-size:15px; font-weight:700; color:#2c3e50;">⏰ Availability</div>
+      <div id="registerAvailChips" class="skill-chips" style="margin:0; gap:10px;">
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Full-time</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Part-time (Morning)</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Part-time (Evening)</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Weekends only</div>
+        <div class="skill-chip rt-chip" onclick="toggleSkill(this)">Flexible</div>
+      </div>
+    </div>
+    
+    <button style="width:100%; margin-top:40px; padding:16px; font-size:16px; border-radius:8px; background:linear-gradient(90deg, #c0392b, #e67e22); color:#fff; font-weight:700; border:none; box-shadow:0 8px 20px rgba(230,126,34,0.3); cursor:pointer; transition:transform 0.2s;" onclick="submitRegistration()">Register Skills</button>
+  </div>
+</div>
+
+<!-- ==================== SKILL DIRECTORY PAGE ==================== -->
+<div class="page" id="page-directory">
+  <div style="display:flex; align-items:center; gap:16px; margin-bottom:4px;">
+    <h2 style="font-size:32px; font-weight:800; color:#1C2939; font-family:'Poppins', sans-serif; letter-spacing:-0.5px;">Skill Directory</h2>
+    <span style="background:#FFF3E0; color:#E65100; border:1px solid #FFE0B2; font-size:12px; font-weight:700; padding:4px 12px; border-radius:12px; letter-spacing:0.5px;" id="dirCountBadge">LOADING...</span>
+  </div>
+  <p style="color:#7f8c8d; font-size:14px; margin-bottom:24px; font-weight:500;">All workers shown by default • Use GPS to sort by distance</p>
+  
+  <div style="padding:16px 20px; background:rgba(26,188,156,0.1); border:1px solid rgba(26,188,156,0.2); display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; border-radius:12px;">
+    <div style="color:#16a085; font-weight:700; font-size:15px;">📍 GPS Nearby — Sort by Distance<br><small style="color:#16a085; opacity:0.8; font-weight:500; font-size:12px;">Allow location access to find nearest skilled workers</small></div>
+    <button style="background:#1abc9c; color:#fff; border-radius:8px; padding:10px 20px; font-size:13px; font-weight:700; border:none; cursor:pointer; box-shadow:0 4px 10px rgba(26,188,156,0.2);">📍 Get My Location</button>
+  </div>
+  
+  <div style="padding:20px; display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end; border-radius:12px; background:#fff; border:1px solid #ecf0f1; box-shadow:0 4px 15px rgba(0,0,0,0.02); margin-bottom:16px;">
+    <div style="flex:1; min-width:140px;">
+      <small style="color:#95a5a6; font-weight:700; font-size:10px; letter-spacing:1px; display:block; margin-bottom:6px;">STATE</small>
+      <select id="dirState" class="inp rt-inp" style="margin:0; padding:12px;" onchange="loadDirectory()">
+        <option value="all">All States</option>
+        <option value="Telangana">Telangana</option>
+        <option value="Rajasthan">Rajasthan</option>
+        <option value="Tamil Nadu">Tamil Nadu</option>
+      </select>
+    </div>
+    <div style="flex:1; min-width:140px;">
+      <small style="color:#95a5a6; font-weight:700; font-size:10px; letter-spacing:1px; display:block; margin-bottom:6px;">SKILL</small>
+      <select id="dirSkill" class="inp rt-inp" style="margin:0; padding:12px;" onchange="loadDirectory()">
+        <option value="all">All Skills</option>
+        <option value="Tailoring">Tailoring</option>
+        <option value="Cooking">Cooking</option>
+        <option value="Handicrafts">Handicrafts</option>
+        <option value="Weaving">Weaving</option>
+        <option value="Embroidery">Embroidery</option>
+      </select>
+    </div>
+    <div style="flex:1; min-width:140px;">
+      <small style="color:#95a5a6; font-weight:700; font-size:10px; letter-spacing:1px; display:block; margin-bottom:6px;">AVAILABILITY</small>
+      <select id="dirAvail" class="inp rt-inp" style="margin:0; padding:12px;" onchange="loadDirectory()">
+        <option value="all">Any</option>
+        <option value="Full-time">Full-time</option>
+        <option value="Flexible">Flexible</option>
+        <option value="Part-time">Part-time</option>
+      </select>
+    </div>
+    <div style="flex:1; min-width:140px;">
+      <small style="color:#95a5a6; font-weight:700; font-size:10px; letter-spacing:1px; display:block; margin-bottom:6px;">CITY</small>
+      <input type="text" id="dirCity" class="inp rt-inp" placeholder="e.g. Mumbai" style="margin:0; padding:12px;" onkeyup="if(event.key==='Enter')loadDirectory()" />
+    </div>
+    <button style="border:1px solid #bdc3c7; border-radius:8px; padding:12px 20px; background:#fff; font-weight:600; color:#34495e; cursor:pointer;" onclick="clearDirFilters()">✕ Clear</button>
+  </div>
+  
+  <p style="font-size:13px; font-weight:500; color:#7f8c8d; margin-bottom:20px;" id="dirCountText">Loading profiles...</p>
+  
+  <div id="dirGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap:20px;">
+    <!-- Worker Cards rendered here by JS -->
+  </div>
+</div>
+
+<!-- ==================== INBOX PAGE ==================== -->
+<div class="page" id="page-inbox">
+  <div class="section-title" style="margin-bottom:24px;">💬 Messages</div>
+  <div style="display:flex; height:70vh; min-height:600px; border-radius:16px; border:1px solid #ecf0f1; background:#fdfbfb; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.05);">
+    <div style="width:320px; border-right:1px solid #ecf0f1; background:#fff; display:flex; flex-direction:column; flex-shrink:0;">
+      <div style="padding:24px 20px; border-bottom:1px solid #ecf0f1; font-weight:800; font-size:18px; color:#2c3e50; letter-spacing:-0.3px;">Conversations</div>
+      <div id="inboxList" style="flex:1; overflow-y:auto;">
+         <!-- Conversations List rendered by JS -->
+      </div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; background:#f8fafc; position:relative;">
+      <div id="chatHeader" style="padding:20px 24px; border-bottom:1px solid #ecf0f1; background:#fff; display:flex; align-items:center; justify-content:space-between; z-index:2;">
+         <div style="display:flex; align-items:center; gap:16px;">
+           <div style="width:48px; height:48px; border-radius:50%; background:#bdc3c7; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:18px;" id="chatAv">?</div>
+           <div>
+             <div style="font-weight:800; font-size:16px; color:#2c3e50;" id="chatName">Select a conversation</div>
+             <div style="font-size:13px; font-weight:500; color:#7f8c8d; margin-top:2px;" id="chatStatus">---</div>
+           </div>
+         </div>
+      </div>
+      <div id="inboxMessages" style="flex:1; padding:24px; overflow-y:auto; display:flex; flex-direction:column; gap:16px;">
+         <div style="text-align:center; color:#95a5a6; font-weight:500; margin-top:80px; font-size:14px;">No messages selected.<br><br>Click on a conversation to start chatting.</div>
+      </div>
+      <div style="padding:16px 24px; background:#fff; border-top:1px solid #ecf0f1; display:flex; gap:12px; z-index:2;">
+         <input type="text" id="inboxInput" class="inp" style="margin:0; flex:1; border-radius:24px; padding:14px 20px; background:#ecf0f1; border:none;" placeholder="Type a message..." disabled onkeyup="if(event.key==='Enter')sendInboxMessage()" />
+         <button id="inboxSendBtn" style="padding:0 24px; border-radius:24px; background:#e67e22; border:none; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(230,126,34,0.3); opacity:0.5;" onclick="sendInboxMessage()" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+         </button>
+      </div>
     </div>
   </div>
 </div>
@@ -360,19 +582,20 @@
 
 <!-- ==================== PROFILE PAGE ==================== -->
 <div class="page" id="page-profile">
-  <div class="card profile-top">
-    <div class="profile-avatar">👩</div>
-    <h3 id="profileName">Priya Devi</h3>
-    <p id="profileLocation">📍 Banswada, Telangana</p>
-    <div class="badge-row">
-      <span class="badge">🧵 Tailoring</span>
-      <span class="badge">🍳 Cooking</span>
-      <span class="badge green-badge">✅ Verified</span>
+  <div style="max-width:700px; margin:0 auto;">
+    <div class="card profile-top" style="text-align:center; padding:32px; display:flex; flex-direction:column; align-items:center;">
+      <div class="profile-avatar" style="width:100px; height:100px; font-size:48px; border-radius:50%; background:linear-gradient(135deg, var(--primary-light), var(--primary)); display:flex; align-items:center; justify-content:center; border:4px solid var(--card-bg); box-shadow:0 10px 25px rgba(233,30,99,0.2); margin-bottom:16px;">👩</div>
+      <h3 id="profileName" style="font-size:24px; font-weight:800; color:var(--text); margin-bottom:8px;">Priya Devi</h3>
+      <p id="profileLocation" style="color:var(--muted); font-size:15px; margin-bottom:20px;">📍 Banswada, Telangana</p>
+      <div class="badge-row" style="justify-content:center;">
+        <span class="badge">🧵 Tailoring</span>
+        <span class="badge">🍳 Cooking</span>
+        <span class="badge green-badge">✅ Verified</span>
+      </div>
     </div>
-  </div>
 
-  <div class="card">
-    <div class="card-title">✏️ Edit Profile</div>
+    <div class="card">
+      <div class="card-title">✏️ Manage Profile</div>
     <div class="input-row">
       <label class="label">Full Name</label>
       <input class="inp" id="pName" value="Priya Devi"/>
@@ -414,22 +637,25 @@
     </div>
   </div>
 
-  <div class="card helpline-card">
-    <div class="card-title" style="color:#1B5E20;">🛡️ Emergency Helplines</div>
-    <div class="helpline-grid">
-      <div class="helpline-item"><span>📞 Women Helpline</span><strong>1091</strong></div>
-      <div class="helpline-item"><span>📞 Domestic Violence</span><strong>181</strong></div>
-      <div class="helpline-item"><span>📞 Police Emergency</span><strong>100</strong></div>
-      <div class="helpline-item"><span>📞 Child Helpline</span><strong>1098</strong></div>
-      <div class="helpline-item"><span>📞 Ambulance</span><strong>108</strong></div>
-      <div class="helpline-item"><span>📞 Cyber Crime</span><strong>1930</strong></div>
     </div>
-  </div>
 
-  <div class="card" style="background:linear-gradient(135deg,#FFF8E1,#FFF3E0);">
-    <div class="card-title" style="color:#E65100;">ℹ️ About ShaktiPath</div>
-    <p style="font-size:13px;line-height:1.7;color:#5D4037;">ShaktiPath is an AI-powered women empowerment platform designed to help rural and semi-urban women access government schemes, find income opportunities, and build confidence. Powered by Claude AI from Anthropic.</p>
-    <p style="font-size:12px;color:#8D6E63;margin-top:8px;">Version 1.0 | Built with ❤️ for women empowerment | 2024</p>
+    <div class="card helpline-card">
+      <div class="card-title" style="color:#1B5E20;">🛡️ Emergency Helplines</div>
+      <div class="helpline-grid">
+        <div class="helpline-item"><span>📞 Women Helpline</span><strong>1091</strong></div>
+        <div class="helpline-item"><span>📞 Domestic Violence</span><strong>181</strong></div>
+        <div class="helpline-item"><span>📞 Police Emergency</span><strong>100</strong></div>
+        <div class="helpline-item"><span>📞 Child Helpline</span><strong>1098</strong></div>
+        <div class="helpline-item"><span>📞 Ambulance</span><strong>108</strong></div>
+        <div class="helpline-item"><span>📞 Cyber Crime</span><strong>1930</strong></div>
+      </div>
+    </div>
+
+    <div class="card" style="background:linear-gradient(135deg, rgba(233,30,99,0.05), rgba(33,150,243,0.05)); border:1px solid rgba(233,30,99,0.1);">
+      <div class="card-title" style="color:var(--primary);">ℹ️ About Sakhi AI</div>
+      <p style="font-size:14px;line-height:1.7;color:var(--text);">Sakhi AI is an intelligent women empowerment platform designed to help rural and semi-urban women access government schemes, match with gig-economy opportunities, and build confidence securely and organically.</p>
+      <p style="font-size:12px;color:var(--muted);margin-top:12px; font-weight:600;">Version 2.0.0 | Built with ❤️ for women empowerment</p>
+    </div>
   </div>
 </div>
 
@@ -437,6 +663,59 @@
 <div class="toast" id="toast"></div>
 
 
-<script src="static/js/app.js"></script>
+  <!-- SCHEME DETAIL MODAL -->
+  <div id="schemeModal" class="modal-overlay" onclick="if(event.target===this) closeSchemeModal()">
+    <div class="modal-content">
+      <div class="modal-close" onclick="closeSchemeModal()">✕</div>
+      <div class="modal-title" id="m-title">Scheme Name</div>
+      <div style="background:rgba(255,152,0,0.15); color:#FF9800; padding:6px 14px; border-radius:12px; display:inline-block; font-size:12px; font-weight:800; letter-spacing:0.5px; margin-bottom:10px;" id="m-badge">Badge Info</div>
+      
+      <div class="modal-section">
+        <div class="modal-h">DESCRIPTION</div>
+        <div class="modal-p" id="m-desc">...</div>
+      </div>
+      
+      <div class="modal-section">
+        <div class="modal-h">ELIGIBILITY</div>
+        <div class="modal-p" id="m-elig">...</div>
+      </div>
+      
+      <div class="modal-section">
+        <div class="modal-h">BENEFITS</div>
+        <div class="modal-p" id="m-ben">...</div>
+      </div>
+      
+      <div class="modal-section">
+        <div class="modal-h">REQUIRED DOCUMENTS</div>
+        <ul class="modal-list" id="m-docs"></ul>
+      </div>
+      
+      <div class="modal-section">
+        <div class="modal-h">APPLICATION STEPS</div>
+        <ul class="modal-list" id="m-steps"></ul>
+      </div>
+      
+      <div class="modal-section">
+        <div class="modal-h">TIME REQUIRED</div>
+        <div class="modal-p" id="m-time" style="color:rgba(255,255,255,0.7); display:flex; gap:6px; align-items:center;"></div>
+      </div>
+      
+      <button class="modal-btn" onclick="closeSchemeModal()">Apply Now → Official Website</button>
+    </div>
+  </div>
+
+  <script src="static/js/app.js"></script>
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en', 
+        includedLanguages: 'en,te,hi,ml,kn', 
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE, 
+        autoDisplay: false
+      }, 'google_translate_element');
+    }
+  </script>
+  <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
+```

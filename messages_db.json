@@ -1,0 +1,41 @@
+{
+  "threads": [
+    {
+      "id": "w1",
+      "name": "Ananya Reddy",
+      "avatar": "A",
+      "messages": [
+        {
+          "text": "hi",
+          "sender": "user",
+          "time": "11:04 PM"
+        },
+        {
+          "text": "ok",
+          "sender": "user",
+          "time": "11:04 PM"
+        },
+        {
+          "text": "byeee",
+          "sender": "user",
+          "time": "11:05 PM"
+        },
+        {
+          "text": "hi",
+          "sender": "user",
+          "time": "11:26 PM"
+        },
+        {
+          "text": "ok",
+          "sender": "user",
+          "time": "11:34 PM"
+        },
+        {
+          "text": "hi",
+          "sender": "user",
+          "time": "11:53 PM"
+        }
+      ]
+    }
+  ]
+}
